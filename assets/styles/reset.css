@@ -97,3 +97,9 @@ meter {
 :where(dialog:modal) {
   all: revert;
 }
+
+/* 추가 */
+button {
+  padding: 0;
+  cursor: pointer;
+}

@@ -15,7 +15,7 @@ export default defineNuxtConfig({
             title: '칸반보드',
         },
     },
-    css: ['@/assets/styles/reset.css'],
+    css: ['@/assets/styles/reset.css', '@/assets/styles/global.css'],
     runtimeConfig: {
         public: {
             apiKey: process.env.firebaseKey,
