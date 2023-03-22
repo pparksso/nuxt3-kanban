@@ -3,6 +3,7 @@
         <div class="board-wrap">
             <SideBar />
             <Kanban />
+            <!-- <EmptyBorad /> -->
         </div>
     </div>
 </template>

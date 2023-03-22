@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.4.7",
+    "firebase": "^9.18.0",
     "pinia": "^2.0.33"
   }
 }

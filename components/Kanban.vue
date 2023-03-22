@@ -30,11 +30,11 @@
 </template>
 <style lang="scss" scoped>
 .kanban {
+    background-color: #fbfdff;
+    flex-grow: 1;
     &-wrap {
         padding: 50px;
     }
-    background-color: #fbfdff;
-    flex-grow: 1;
     &__title {
         margin-bottom: 30px;
         h1 {
