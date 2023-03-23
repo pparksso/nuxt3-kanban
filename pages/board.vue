@@ -1,7 +1,7 @@
 <template>
     <div class="board">
         <div class="board-wrap">
-            <SideBar />
+            <SideBar :name="name" />
             <Kanban />
             <!-- <EmptyBorad /> -->
         </div>
@@ -10,12 +10,16 @@
 <script setup lang="ts">
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
+const name = ref();
+
 onBeforeMount(() => {
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
         if (!user) {
             return navigateTo('/');
-        } else return true;
+        } else {
+            name.value = user.displayName;
+        }
     });
 });
 </script>

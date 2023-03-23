@@ -2,7 +2,8 @@
     <div class="side-bar">
         <div class="side-bar__top">
             <div class="side-bar__user-box">
-                <span>pssh5124@gmail.com</span>
+                <span>{{ name }}</span>
+                <button><span class="material-icons"> add </span></button>
             </div>
             <div class="side-bar__list-box">
                 <ul>
@@ -19,6 +20,9 @@
     </div>
 </template>
 <script setup lang="ts">
+defineProps({
+    name: String,
+});
 const logoutHandler = () => {
     useAuth().signOut();
 };
@@ -43,10 +47,17 @@ const logoutHandler = () => {
     }
     &__user-box {
         margin-bottom: 50px;
-        span {
+        display: flex;
+        align-items: center;
+        > span {
             font-weight: 900;
             user-select: none;
             color: #252a32;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        button {
+            height: 24px;
         }
     }
     &__list-box {

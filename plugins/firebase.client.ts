@@ -1,8 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFunctions } from 'firebase/functions';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
+import { getDatabase } from 'firebase/database';
 
 import { defineNuxtPlugin } from '#app';
 
@@ -16,9 +15,10 @@ export default defineNuxtPlugin((nuxtApp) => {
         storageBucket: config.FB_STORAGE_BUCKET,
         messagingSenderId: config.FB_MESSAGING_SENDER_ID,
         appId: config.FB_APP_ID,
+        databaseUrl: 'https://kanban-nuxt3.firebaseio.com',
     };
     const app = initializeApp(firebaseConfig);
 
     const auth = getAuth(app);
-    const functions = getFunctions();
+    const database = getDatabase(app);
 });
