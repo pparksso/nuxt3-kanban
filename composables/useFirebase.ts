@@ -1,22 +1,25 @@
 import {
     getAuth,
-    signInWithEmailAndPassword,
+    signInWithPopup,
     signOut as firebaseSignOut,
     onAuthStateChanged,
+    GoogleAuthProvider,
 } from 'firebase/auth';
 
 export const useAuth = () => {
     const token = useState<string>('token', () => null);
-    async function signIn(email: string, password: string) {
+    async function signIn() {
         return await new Promise<void>((resolve, reject) => {
             const auth = getAuth();
-            return signInWithEmailAndPassword(auth, email, password)
+            const provider = new GoogleAuthProvider();
+            return signInWithPopup(auth, provider)
                 .then((userCredential) => {
                     userCredential.user
                         .getIdToken()
                         .then((idToken) => {
                             token.value = idToken;
                             resolve();
+                            navigateTo('/board');
                         })
                         .catch(reject);
                 })

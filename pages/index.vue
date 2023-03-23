@@ -40,15 +40,11 @@ onBeforeMount(() => {
 });
 
 const loginHandler = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(getAuth(), provider).then((auth) => {
-        useAuth();
-        return navigateTo('/board');
-    });
+    useAuth().signIn();
 };
 
 const logoutHandler = () => {
-    signOut(getAuth());
+    useAuth().signOut();
 };
 </script>
 <style lang="scss" scoped>

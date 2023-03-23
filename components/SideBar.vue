@@ -19,12 +19,8 @@
     </div>
 </template>
 <script setup lang="ts">
-import { getAuth, signOut } from 'firebase/auth';
-
 const logoutHandler = () => {
-    signOut(getAuth()).then((res) => {
-        navigateTo('/');
-    });
+    useAuth().signOut();
 };
 </script>
 <style lang="scss" scoped>
