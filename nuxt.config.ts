@@ -25,6 +25,12 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             apiKey: process.env.firebaseKey,
+            FB_PROJECT_ID: process.env.projectId,
+            FB_AUTH_DOMAIN: process.env.authDomain,
+            FB_STORAGE_BUCKET: process.env.storageBucket,
+            FB_MESSAGING_SENDER_ID: process.env.messagingSenderId,
+            FB_APP_ID: process.env.appId,
+            // FB_MEASUREMENT_ID:
         },
     },
 });

@@ -14,10 +14,19 @@
             </div>
         </div>
         <div class="side-bar__logout-box">
-            <button><span>logout</span></button>
+            <button @click="logoutHandler"><span>logout</span></button>
         </div>
     </div>
 </template>
+<script setup lang="ts">
+import { getAuth, signOut } from 'firebase/auth';
+
+const logoutHandler = () => {
+    signOut(getAuth()).then((res) => {
+        navigateTo('/');
+    });
+};
+</script>
 <style lang="scss" scoped>
 .side-bar {
     width: 15vw;

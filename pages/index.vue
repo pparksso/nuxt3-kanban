@@ -4,7 +4,7 @@
             <div class="login__image-box">
                 <h1>Welcome!</h1>
             </div>
-            <div class="login__input-box">
+            <div class="login__input-box" v-if="isLogged">
                 <div class="login__input-box__text-box">
                     <h2>Login</h2>
                     <p>
@@ -12,11 +12,45 @@
                         account
                     </p>
                 </div>
-                <button></button>
+                <button @click="loginHandler"></button>
+            </div>
+            <div class="logout" v-else>
+                <button @click="logoutHandler"><span>Logout</span></button>
             </div>
         </div>
     </div>
 </template>
+<script setup lang="ts">
+import {
+    getAuth,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+} from 'firebase/auth';
+
+const isLogged = ref();
+
+onBeforeMount(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+        if (user) isLogged.value = false;
+        else isLogged.value = true;
+    });
+});
+
+const loginHandler = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(getAuth(), provider).then((auth) => {
+        useAuth();
+        return navigateTo('/board');
+    });
+};
+
+const logoutHandler = () => {
+    signOut(getAuth());
+};
+</script>
 <style lang="scss" scoped>
 .login {
     &__wrap {
@@ -65,6 +99,16 @@
                 background-image: url('@/assets/images/btn_google_signin_dark_focus_web.png');
             }
         }
+    }
+}
+.logout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    button span {
+        font-size: 40px;
+        font-weight: 900;
     }
 }
 </style>

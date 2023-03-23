@@ -7,6 +7,18 @@
         </div>
     </div>
 </template>
+<script setup lang="ts">
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+onBeforeMount(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            return navigateTo('/');
+        } else return true;
+    });
+});
+</script>
 <style lang="scss" scoped>
 .board {
     &-wrap {

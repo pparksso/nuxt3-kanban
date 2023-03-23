@@ -1,3 +1,5 @@
 <template>
-    <NuxtPage />
+    <ClientOnly>
+        <NuxtPage />
+    </ClientOnly>
 </template>
