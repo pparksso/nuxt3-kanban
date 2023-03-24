@@ -1,16 +1,31 @@
 <template>
     <div class="board">
         <div class="board-wrap">
-            <SideBar :name="name" />
-            <Kanban />
-            <!-- <EmptyBorad /> -->
+            <SideBar :info="userInfo" />
+            <!-- <Kanban /> -->
+            <EmptyBorad />
         </div>
     </div>
 </template>
 <script setup lang="ts">
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getDatabase, onValue, ref, get, child } from 'firebase/database';
 
-const name = ref();
+const db = getDatabase();
+
+const dbRef = ref(db);
+// get(child(dbRef, 'users/')).then((snapshot) => {
+//     console.log(snapshot.val());
+// });
+
+interface UserInfo {
+    name: string | null;
+    email: string | null;
+}
+const userInfo = reactive<UserInfo>({
+    name: '',
+    email: '',
+});
 
 onBeforeMount(() => {
     const auth = getAuth();
@@ -18,7 +33,8 @@ onBeforeMount(() => {
         if (!user) {
             return navigateTo('/');
         } else {
-            name.value = user.displayName;
+            userInfo.name = user.displayName;
+            userInfo.email = user.email;
         }
     });
 });

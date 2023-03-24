@@ -2,20 +2,22 @@
     <div class="side-bar">
         <div class="side-bar__top">
             <div class="side-bar__user-box">
-                <span>{{ name }}</span>
+                <span>{{ props.info?.name }}</span>
                 <button @click="showInputBoxHandler">
                     <span class="material-icons"> add </span>
                 </button>
                 <div class="side-bar__user-box__input-box" v-if="showInputBox">
-                    <input type="text" maxlength="10" ref="listInputRef" />
+                    <input
+                        type="text"
+                        maxlength="10"
+                        ref="listInputRef"
+                        @keydown="addListHandler"
+                    />
                 </div>
             </div>
             <div class="side-bar__list-box">
                 <ul>
-                    <li><span>쇼핑리스트</span></li>
-                </ul>
-                <ul>
-                    <li><span>쇼핑리스트</span></li>
+                    <li><span></span></li>
                 </ul>
             </div>
         </div>
@@ -25,9 +27,13 @@
     </div>
 </template>
 <script setup lang="ts">
-defineProps({
-    name: String,
+import { getDatabase, set, ref as databaseRef } from 'firebase/database';
+
+const props = defineProps({
+    info: Object,
 });
+
+const db = getDatabase();
 
 const showInputBox = ref(false);
 const listInputRef = ref<HTMLInputElement | null>(null);
@@ -45,6 +51,17 @@ watchEffect(() => {
         listInputRef.value?.focus();
     }
 });
+
+//목록 추가
+const addListHandler = (e: KeyboardEvent) => {
+    if (e.code === 'Enter') {
+        const word = listInputRef.value?.value;
+        set(databaseRef(db, '/users' + props.info?.email), {
+            name: word,
+            email: props.info?.email,
+        });
+    }
+};
 </script>
 <style lang="scss" scoped>
 .side-bar {
