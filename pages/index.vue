@@ -16,6 +16,9 @@
             </div>
             <div class="logout" v-else>
                 <button @click="logoutHandler"><span>Logout</span></button>
+                <button @click="navigateTo('/board')">
+                    <span class="material-icons"> arrow_right_alt </span>
+                </button>
             </div>
         </div>
     </div>
@@ -102,6 +105,7 @@ const logoutHandler = () => {
     justify-content: center;
     align-items: center;
     width: 50%;
+    flex-direction: column;
     button span {
         font-size: 40px;
         font-weight: 900;

@@ -3,7 +3,12 @@
         <div class="side-bar__top">
             <div class="side-bar__user-box">
                 <span>{{ name }}</span>
-                <button><span class="material-icons"> add </span></button>
+                <button @click="showInputBoxHandler">
+                    <span class="material-icons"> add </span>
+                </button>
+                <div class="side-bar__user-box__input-box" v-if="showInputBox">
+                    <input type="text" maxlength="10" ref="listInputRef" />
+                </div>
             </div>
             <div class="side-bar__list-box">
                 <ul>
@@ -23,9 +28,23 @@
 defineProps({
     name: String,
 });
+
+const showInputBox = ref(false);
+const listInputRef = ref<HTMLInputElement | null>(null);
+
 const logoutHandler = () => {
     useAuth().signOut();
 };
+
+const showInputBoxHandler = () => {
+    showInputBox.value = !showInputBox.value;
+};
+
+watchEffect(() => {
+    if (showInputBox.value) {
+        listInputRef.value?.focus();
+    }
+});
 </script>
 <style lang="scss" scoped>
 .side-bar {
@@ -49,6 +68,7 @@ const logoutHandler = () => {
         margin-bottom: 50px;
         display: flex;
         align-items: center;
+        position: relative;
         > span {
             font-weight: 900;
             user-select: none;
@@ -58,6 +78,14 @@ const logoutHandler = () => {
         }
         button {
             height: 24px;
+        }
+        &__input-box {
+            position: absolute;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+            top: 30px;
+            left: 0;
+            padding: 5px;
+            width: 90%;
         }
     }
     &__list-box {
