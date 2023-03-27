@@ -15,7 +15,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         storageBucket: config.FB_STORAGE_BUCKET,
         messagingSenderId: config.FB_MESSAGING_SENDER_ID,
         appId: config.FB_APP_ID,
-        databaseUrl: 'https://kanban-nuxt3.firebaseio.com',
+        databaseURL: 'https://kanban-nuxt3-default-rtdb.asia-southeast1.firebasedatabase.app',
     };
     const app = initializeApp(firebaseConfig);
 

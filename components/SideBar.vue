@@ -17,7 +17,9 @@
             </div>
             <div class="side-bar__list-box">
                 <ul>
-                    <li><span></span></li>
+                    <li v-for="(title, index) of props.titles" :key="index">
+                        <span>{{ title }}</span>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -27,12 +29,12 @@
     </div>
 </template>
 <script setup lang="ts">
-import { getDatabase, set, ref as databaseRef } from 'firebase/database';
+import { getDatabase, set, ref as rtdbRef, update } from 'firebase/database';
 
 const props = defineProps({
     info: Object,
+    titles: Array,
 });
-
 const db = getDatabase();
 
 const showInputBox = ref(false);
@@ -54,12 +56,27 @@ watchEffect(() => {
 
 //목록 추가
 const addListHandler = (e: KeyboardEvent) => {
+    const encodedEmail = encodeURIComponent(props.info?.email.replace(/\./g, '%2E'));
+    const path = `users/${encodedEmail}`;
     if (e.code === 'Enter') {
         const word = listInputRef.value?.value;
-        set(databaseRef(db, `/users${props.info?.email}`), {
-            name: word,
-            email: props.info?.email,
-        });
+        if (!props.titles) {
+            console.log('없을 때');
+            set(rtdbRef(db, path), {
+                name: props.info?.name,
+                lists: [word],
+            }).then(() => {
+                inject('getTitle');
+            });
+        } else {
+            console.log('있을 때');
+            const words = [...(props.titles as unknown as string), word];
+            update(rtdbRef(db, path), {
+                '/lists': words,
+            }).then(() => {
+                inject('getTitle');
+            });
+        }
     }
 };
 </script>
