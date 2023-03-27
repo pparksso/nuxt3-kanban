@@ -17,7 +17,7 @@
             </div>
             <div class="side-bar__list-box">
                 <ul>
-                    <li v-for="(title, index) of props.titles" :key="index">
+                    <li v-for="(title, index) of kanbanTitles" :key="index">
                         <span>{{ title }}</span>
                     </li>
                 </ul>
@@ -33,7 +33,16 @@ import { getDatabase, set, ref as rtdbRef, update } from 'firebase/database';
 
 const props = defineProps({
     info: Object,
-    titles: Array,
+});
+
+interface GetLists {
+    getTitle: () => void;
+    kanbanTitles: Ref<object>;
+}
+
+const { getTitle, kanbanTitles } = inject<GetLists>('getLists', {
+    getTitle: () => '',
+    kanbanTitles: {} as Ref<object>,
 });
 const db = getDatabase();
 
@@ -54,27 +63,31 @@ watchEffect(() => {
     }
 });
 
+const hideInputBoxHandler = () => {
+    getTitle();
+    showInputBox.value = false;
+    if (listInputRef.value?.value) listInputRef.value.value = '';
+};
+
 //목록 추가
 const addListHandler = (e: KeyboardEvent) => {
     const encodedEmail = encodeURIComponent(props.info?.email.replace(/\./g, '%2E'));
     const path = `users/${encodedEmail}`;
     if (e.code === 'Enter') {
         const word = listInputRef.value?.value;
-        if (!props.titles) {
-            console.log('없을 때');
+        if (!kanbanTitles.value) {
             set(rtdbRef(db, path), {
                 name: props.info?.name,
                 lists: [word],
             }).then(() => {
-                inject('getTitle');
+                hideInputBoxHandler();
             });
         } else {
-            console.log('있을 때');
-            const words = [...(props.titles as unknown as string), word];
+            const words = [...Object.values(kanbanTitles.value), word];
             update(rtdbRef(db, path), {
                 '/lists': words,
             }).then(() => {
-                inject('getTitle');
+                hideInputBoxHandler();
             });
         }
     }

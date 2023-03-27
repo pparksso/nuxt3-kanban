@@ -1,7 +1,7 @@
 <template>
     <div class="board">
         <div class="board-wrap">
-            <SideBar :info="userInfo" :titles="kanbanTitles" />
+            <SideBar :info="userInfo" />
             <!-- <Kanban /> -->
             <EmptyBorad />
         </div>
@@ -10,7 +10,6 @@
 <script setup lang="ts">
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getDatabase, onValue, ref as rtdbRef, get, child } from 'firebase/database';
-import { getSyntheticLeadingComments } from 'typescript';
 
 const db = getDatabase();
 
@@ -59,7 +58,10 @@ authPromise.then((isAuthenticated) => {
 });
 
 //자식 컴포넌트에서 사용
-provide('getTitle', getTitle);
+provide('getLists', {
+    getTitle,
+    kanbanTitles,
+});
 </script>
 <style lang="scss" scoped>
 .board {
