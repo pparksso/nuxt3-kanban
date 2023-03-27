@@ -6,11 +6,11 @@
                 <button @click="showInputBoxHandler">
                     <span class="material-icons"> add </span>
                 </button>
-                <div class="side-bar__user-box__input-box" v-if="showInputBox">
+                <div v-if="showInputBox" class="side-bar__user-box__input-box">
                     <input
+                        ref="listInputRef"
                         type="text"
                         maxlength="10"
-                        ref="listInputRef"
                         @keydown="addListHandler"
                     />
                 </div>
@@ -56,7 +56,7 @@ watchEffect(() => {
 const addListHandler = (e: KeyboardEvent) => {
     if (e.code === 'Enter') {
         const word = listInputRef.value?.value;
-        set(databaseRef(db, '/users' + props.info?.email), {
+        set(databaseRef(db, `/users${props.info?.email}`), {
             name: word,
             email: props.info?.email,
         });
