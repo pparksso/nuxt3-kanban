@@ -19,6 +19,7 @@
                 <ul>
                     <li v-for="(title, index) of kanbanTitles" :key="index">
                         <span>{{ title }}</span>
+                        <span class="material-icons">close</span>
                     </li>
                 </ul>
             </div>
@@ -79,13 +80,16 @@ const addListHandler = (e: KeyboardEvent) => {
             set(rtdbRef(db, path), {
                 name: props.info?.name,
                 lists: [word],
+                cards: [{ title: word }],
             }).then(() => {
                 hideInputBoxHandler();
             });
         } else {
             const words = [...Object.values(kanbanTitles.value), word];
+            // 배열에 추가를 해야지, 덮어쓰면 안됨
             update(rtdbRef(db, path), {
                 '/lists': words,
+                '/cards': [{ title: word }],
             }).then(() => {
                 hideInputBoxHandler();
             });
@@ -140,6 +144,9 @@ const addListHandler = (e: KeyboardEvent) => {
             li {
                 cursor: pointer;
                 padding: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
                 span {
                     color: #aaa;
                     font-weight: 400;

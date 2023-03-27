@@ -2,8 +2,8 @@
     <div class="board">
         <div class="board-wrap">
             <SideBar :info="userInfo" />
-            <!-- <Kanban /> -->
-            <EmptyBorad />
+            <EmptyBorad v-if="!kanbanTitles" />
+            <Kanban v-else />
         </div>
     </div>
 </template>
