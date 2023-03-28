@@ -13,7 +13,7 @@ import { getDatabase, onValue, ref as rtdbRef, get, child } from 'firebase/datab
 
 const db = getDatabase();
 
-const kanbanTitles = ref<string[] | null>();
+const kanbanTitles = ref<string[]>();
 
 interface UserInfo {
     name: string | null;
@@ -42,15 +42,12 @@ const getTitle = () => {
     const encodedEmail = encodeURIComponent(
         !userInfo.email ? '' : userInfo.email.replace(/\./g, '%2E'),
     );
-    const path = `${encodedEmail}/`;
     // eslint-disable-next-line consistent-return
-    get(child(dbRef, path)).then((snapshot) => {
+    get(child(dbRef, `users/${encodedEmail}`)).then((snapshot) => {
         const titleData = snapshot.val();
-        if (titleData) {
-            const titleArr = Object.keys(titleData);
-            kanbanTitles.value = titleArr;
+        if (titleData?.lists) {
+            kanbanTitles.value = titleData.lists;
         } else {
-            kanbanTitles.value = null;
             return false;
         }
     });
