@@ -9,9 +9,10 @@ import {
 export const useAuth = () => {
     const token = useState<string | null>('token', () => null);
     async function signIn() {
-        return await new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             const auth = getAuth();
             const provider = new GoogleAuthProvider();
+            // eslint-disable-next-line no-promise-executor-return
             return signInWithPopup(auth, provider)
                 .then((userCredential) => {
                     userCredential.user
@@ -28,7 +29,7 @@ export const useAuth = () => {
     }
 
     async function signOut() {
-        return await new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             const auth = getAuth();
             firebaseSignOut(auth)
                 .then(() => {
@@ -42,7 +43,9 @@ export const useAuth = () => {
     }
 
     async function checkAuthState() {
-        return await new Promise<void>((resolve, reject) => {
+        // eslint-disable-next-line consistent-return
+        return new Promise<void>((resolve, reject) => {
+            // eslint-disable-next-line no-promise-executor-return
             if (process.server) return resolve();
             const auth = getAuth();
             onAuthStateChanged(

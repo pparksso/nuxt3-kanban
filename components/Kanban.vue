@@ -7,12 +7,15 @@
             <div class="kanban__main-box">
                 <div class="kanban__main-box__item-list">
                     <div class="kanban__main-box__item-list__title">
-                        <span>큰 제목</span><button><span class="material-icons"> more_horiz </span></button>
+                        <span>큰 제목</span
+                        ><button><span class="material-icons"> more_horiz </span></button>
                     </div>
                     <ul>
                         <li>
                             <div class="kanban__main-box__item-list__item">
-                                <span>오늘 먹은것은 이것이지 하하 모루겠다.. 아 어렵네 하 ㅠㅠ </span>
+                                <span
+                                    >오늘 먹은것은 이것이지 하하 모루겠다.. 아 어렵네 하 ㅠㅠ
+                                </span>
                                 <div class="btns">
                                     <button><span class="material-icons"> edit </span></button>
                                     <button><span class="material-icons"> close </span></button>
@@ -20,7 +23,9 @@
                             </div>
                         </li>
                         <li class="plus">
-                            <button><span>New</span><span class="material-icons"> add </span></button>
+                            <button>
+                                <span>New</span><span class="material-icons"> add </span>
+                            </button>
                         </li>
                     </ul>
                 </div>

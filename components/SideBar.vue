@@ -2,7 +2,7 @@
     <div class="side-bar">
         <div class="side-bar__top">
             <div class="side-bar__user-box">
-                <span>{{ props.info?.name }}</span>
+                <span>{{ kanbanStore.userInfo.name }}</span>
                 <button @click="showInputBoxHandler">
                     <span class="material-icons"> add </span>
                 </button>
@@ -17,7 +17,7 @@
             </div>
             <div class="side-bar__list-box">
                 <ul>
-                    <li v-for="(title, index) of kanbanTitles" :key="index">
+                    <li v-for="(title, index) of kanbanStore.kanbanTitles" :key="index">
                         <span>{{ title }}</span>
                         <button @click="removeListHandler(title)">
                             <span class="material-icons">close</span>
@@ -33,20 +33,10 @@
 </template>
 <script setup lang="ts">
 import { getDatabase, set, ref as rtdbRef, remove } from 'firebase/database';
+import { useKanbanStore } from '@/stores/kanban';
 
-const props = defineProps({
-    info: Object,
-});
+const kanbanStore = useKanbanStore();
 
-interface GetLists {
-    getTitle: () => void;
-    kanbanTitles: Ref<object>;
-}
-
-const { getTitle, kanbanTitles } = inject<GetLists>('getLists', {
-    getTitle: () => '',
-    kanbanTitles: {} as Ref<object>,
-});
 const db = getDatabase();
 
 const showInputBox = ref(false);
@@ -67,32 +57,37 @@ watchEffect(() => {
 });
 
 const hideInputBoxHandler = () => {
-    getTitle();
+    kanbanStore.getTitle();
     showInputBox.value = false;
     if (listInputRef.value?.value) listInputRef.value.value = '';
 };
 
-//목록 추가
+// 목록 추가
 const addListHandler = (e: KeyboardEvent) => {
-    const encodedEmail = encodeURIComponent(props.info?.email.replace(/\./g, '%2E'));
-    const path = `${encodedEmail}/`;
-    if (e.code === 'Enter') {
-        const word = listInputRef.value?.value as string;
-        set(rtdbRef(db, path + word), {
-            title: word,
-        }).then(() => {
-            hideInputBoxHandler();
-        });
+    if (typeof kanbanStore.userInfo.email === 'string') {
+        const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+        const path = `${encodedEmail}/`;
+        if (e.code === 'Enter') {
+            const word = listInputRef.value?.value as string;
+            kanbanStore.saveWord = word;
+            set(rtdbRef(db, path + word), {
+                title: word,
+            }).then(() => {
+                hideInputBoxHandler();
+            });
+        }
     }
 };
 
-//목록 삭제
+// 목록 삭제
 const removeListHandler = (title: string) => {
-    const encodedEmail = encodeURIComponent(props.info?.email.replace(/\./g, '%2E'));
-    const path = `${encodedEmail}/`;
-    remove(rtdbRef(db, path + title)).then(() => {
-        getTitle();
-    });
+    if (typeof kanbanStore.userInfo.email === 'string') {
+        const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+        const path = `${encodedEmail}/`;
+        remove(rtdbRef(db, path + title)).then(() => {
+            kanbanStore.getTitle();
+        });
+    }
 };
 </script>
 <style lang="scss" scoped>
