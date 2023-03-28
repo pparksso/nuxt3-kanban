@@ -19,7 +19,9 @@
                 <ul>
                     <li v-for="(title, index) of kanbanTitles" :key="index">
                         <span>{{ title }}</span>
-                        <span class="material-icons">close</span>
+                        <button @click="removeListHandler(title)">
+                            <span class="material-icons">close</span>
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -30,7 +32,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { getDatabase, set, ref as rtdbRef, update } from 'firebase/database';
+import { getDatabase, set, ref as rtdbRef, remove } from 'firebase/database';
 
 const props = defineProps({
     info: Object,
@@ -73,28 +75,24 @@ const hideInputBoxHandler = () => {
 //목록 추가
 const addListHandler = (e: KeyboardEvent) => {
     const encodedEmail = encodeURIComponent(props.info?.email.replace(/\./g, '%2E'));
-    const path = `users/${encodedEmail}`;
+    const path = `${encodedEmail}/`;
     if (e.code === 'Enter') {
-        const word = listInputRef.value?.value;
-        if (!kanbanTitles.value) {
-            set(rtdbRef(db, path), {
-                name: props.info?.name,
-                lists: [word],
-                cards: [{ title: word }],
-            }).then(() => {
-                hideInputBoxHandler();
-            });
-        } else {
-            const words = [...Object.values(kanbanTitles.value), word];
-            // 배열에 추가를 해야지, 덮어쓰면 안됨
-            update(rtdbRef(db, path), {
-                '/lists': words,
-                '/cards': [{ title: word }],
-            }).then(() => {
-                hideInputBoxHandler();
-            });
-        }
+        const word = listInputRef.value?.value as string;
+        set(rtdbRef(db, path + word), {
+            title: word,
+        }).then(() => {
+            hideInputBoxHandler();
+        });
     }
+};
+
+//목록 삭제
+const removeListHandler = (title: string) => {
+    const encodedEmail = encodeURIComponent(props.info?.email.replace(/\./g, '%2E'));
+    const path = `${encodedEmail}/`;
+    remove(rtdbRef(db, path + title)).then(() => {
+        getTitle();
+    });
 };
 </script>
 <style lang="scss" scoped>
