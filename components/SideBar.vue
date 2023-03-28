@@ -69,12 +69,16 @@ const addListHandler = (e: KeyboardEvent) => {
         const path = `${encodedEmail}/`;
         if (e.code === 'Enter') {
             const word = listInputRef.value?.value as string;
-            kanbanStore.saveWord = word;
+            kanbanStore.changeWord(word);
             set(rtdbRef(db, path + word), {
                 title: word,
             }).then(() => {
                 hideInputBoxHandler();
             });
+        }
+        if (e.code === 'Escape') {
+            showInputBox.value = false;
+            if (listInputRef.value?.value) listInputRef.value.value = '';
         }
     }
 };

@@ -18,6 +18,11 @@ export const useKanbanStore = defineStore('word', () => {
     // 추가한 칸반리스트 제목
     const saveWord = ref<string>('');
 
+    // 리스트 제목 변경 함수
+    function changeWord(word: string) {
+        saveWord.value = word;
+    }
+
     // 칸반리스트 제목이 모인 배열
     const kanbanTitles = ref<string[] | null>();
     // 해당 칸반리스트
@@ -27,6 +32,7 @@ export const useKanbanStore = defineStore('word', () => {
             !userInfo.value.email ? '' : userInfo.value.email.replace(/\./g, '%2E'),
         );
         const path = `${encodedEmail}/`;
+
         // eslint-disable-next-line consistent-return
         get(child(dbRef, path)).then((snapshot) => {
             const titleData = snapshot.val();
@@ -34,6 +40,8 @@ export const useKanbanStore = defineStore('word', () => {
                 const titleArr = Object.keys(titleData);
                 kanbanTitles.value = titleArr;
                 kanbanDatas.value = titleData[saveWord.value];
+                if (!saveWord.value) kanbanDatas.value = titleData[titleArr[0]];
+                console.log(kanbanDatas.value);
             } else {
                 kanbanTitles.value = null;
                 kanbanDatas.value = null;
@@ -41,5 +49,5 @@ export const useKanbanStore = defineStore('word', () => {
             }
         });
     }
-    return { userInfo, saveWord, kanbanTitles, kanbanDatas, getTitle };
+    return { userInfo, changeWord, kanbanTitles, kanbanDatas, getTitle };
 });

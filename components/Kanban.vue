@@ -33,6 +33,12 @@
         </div>
     </div>
 </template>
+<script setup lang="ts">
+import { useKanbanStore } from '@/stores/kanban';
+
+const kanbanStore = useKanbanStore();
+// console.log(kanbanStore.kanbanDatas);
+</script>
 <style lang="scss" scoped>
 .kanban {
     background-color: #fbfdff;
