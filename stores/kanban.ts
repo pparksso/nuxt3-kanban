@@ -7,6 +7,7 @@ type UserInfo = {
 };
 type KanbanDatas = {
     title: string | null;
+    cards: Object | null;
 };
 export const useKanbanStore = defineStore('word', () => {
     const db = getDatabase();
