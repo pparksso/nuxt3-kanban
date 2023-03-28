@@ -1,5 +1,8 @@
 <template>
     <div class="board">
+        <div v-if="kanbanStore.loading" class="board-loading">
+            <img src="@/assets/images/loading.gif" alt="로딩중" />
+        </div>
         <div class="board-wrap">
             <SideBar />
             <EmptyBorad v-if="!kanbanStore.kanbanTitles" />
@@ -34,6 +37,13 @@ authPromise.then((isAuthenticated) => {
 .board {
     &-wrap {
         display: flex;
+        width: 100vw;
+        height: 100vh;
+    }
+    &-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         width: 100vw;
         height: 100vh;
     }

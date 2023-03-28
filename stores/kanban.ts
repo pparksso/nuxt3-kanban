@@ -5,10 +5,16 @@ type UserInfo = {
     name: string | null;
     email: string | null;
 };
-
+type KanbanDatas = {
+    title: string | null;
+};
 export const useKanbanStore = defineStore('word', () => {
     const db = getDatabase();
     const dbRef = rtdbRef(db);
+
+    // 로딩 상태
+    const loading = ref<boolean>(true);
+
     // 유저 정보
     const userInfo = ref<UserInfo>({
         name: '',
@@ -26,7 +32,7 @@ export const useKanbanStore = defineStore('word', () => {
     // 칸반리스트 제목이 모인 배열
     const kanbanTitles = ref<string[] | null>();
     // 해당 칸반리스트
-    const kanbanDatas = ref<Object | null>();
+    const kanbanDatas = ref<KanbanDatas | null>();
     function getTitle() {
         const encodedEmail = encodeURIComponent(
             !userInfo.value.email ? '' : userInfo.value.email.replace(/\./g, '%2E'),
@@ -35,6 +41,7 @@ export const useKanbanStore = defineStore('word', () => {
 
         // eslint-disable-next-line consistent-return
         get(child(dbRef, path)).then((snapshot) => {
+            loading.value = false;
             const titleData = snapshot.val();
             if (titleData) {
                 const titleArr = Object.keys(titleData);
@@ -49,5 +56,5 @@ export const useKanbanStore = defineStore('word', () => {
             }
         });
     }
-    return { userInfo, changeWord, kanbanTitles, kanbanDatas, getTitle };
+    return { loading, userInfo, changeWord, kanbanTitles, kanbanDatas, getTitle };
 });

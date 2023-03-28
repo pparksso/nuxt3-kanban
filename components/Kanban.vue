@@ -2,7 +2,7 @@
     <div class="kanban">
         <div class="kanban-wrap">
             <div class="kanban__title">
-                <h1>쇼핑리스트</h1>
+                <h1 v-if="kanbanStore.kanbanDatas">{{ kanbanStore.kanbanDatas['title'] }}</h1>
             </div>
             <div class="kanban__main-box">
                 <div class="kanban__main-box__item-list">
@@ -37,7 +37,7 @@
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
-// console.log(kanbanStore.kanbanDatas);
+console.log(kanbanStore.kanbanDatas);
 </script>
 <style lang="scss" scoped>
 .kanban {
