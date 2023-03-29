@@ -5,9 +5,13 @@ type UserInfo = {
     name: string | null;
     email: string | null;
 };
+type Card = {
+    title: string;
+    items: string[];
+};
 type KanbanDatas = {
     title: string | null;
-    cards: Object | null;
+    cards: Card | null;
 };
 export const useKanbanStore = defineStore('word', () => {
     const db = getDatabase();
@@ -49,7 +53,6 @@ export const useKanbanStore = defineStore('word', () => {
                 kanbanTitles.value = titleArr;
                 kanbanDatas.value = titleData[saveWord.value];
                 if (!saveWord.value) kanbanDatas.value = titleData[titleArr[0]];
-                console.log(kanbanDatas.value);
             } else {
                 kanbanTitles.value = null;
                 kanbanDatas.value = null;

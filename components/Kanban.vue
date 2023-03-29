@@ -16,42 +16,20 @@
                     />
                 </div>
             </div>
-            <div class="kanban__main-box">
-                <div v-if="kanbanListState" class="kanban__main-box__item-list">
-                    <div class="kanban__main-box__item-list__title">
-                        <span>큰 제목</span
-                        ><button><span class="material-icons"> more_horiz </span></button>
-                    </div>
-                    <ul>
-                        <li>
-                            <div class="kanban__main-box__item-list__item">
-                                <span
-                                    >오늘 먹은것은 이것이지 하하 모루겠다.. 아 어렵네 하 ㅠㅠ
-                                </span>
-                                <div class="btns">
-                                    <button><span class="material-icons"> edit </span></button>
-                                    <button><span class="material-icons"> close </span></button>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="plus">
-                            <button>
-                                <span>New</span><span class="material-icons"> add </span>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <Card v-if="kanbanListState" />
         </div>
     </div>
 </template>
 <script setup lang="ts">
+import { getDatabase, ref as rtdbRef, set } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
 const kanbanListState = ref();
 const inputBoxState = ref<boolean>(false);
 const inputRef = ref<HTMLInputElement | null>(null);
+
+const db = getDatabase();
 
 // 칸반 아이템들이 있는지 없는지 확인하는 함수
 function kanbanListStateHandler() {
@@ -72,9 +50,35 @@ const showInputBox = () => {
     inputBoxState.value = !inputBoxState.value;
 };
 
+// 인풋박스 포커스
+watchEffect(() => {
+    if (inputBoxState.value) inputRef.value?.focus();
+});
+
+// 카드 인풋박스 숨기기
+const hideAddInputBoxHandler = () => {
+    kanbanStore.getTitle();
+    inputBoxState.value = false;
+    if (inputRef.value?.value) inputRef.value.value = '';
+};
 // 칸반 추가
 const addSubTitleHandler = (e: KeyboardEvent) => {
-    console.log(e.code);
+    if (typeof kanbanStore.userInfo.email === 'string') {
+        const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+        if (e.code === 'Enter') {
+            const word = inputRef.value?.value as string;
+            const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+            set(rtdbRef(db, path), {
+                title: word,
+            }).then(() => {
+                hideAddInputBoxHandler();
+            });
+        }
+        if (e.code === 'Escape') {
+            inputBoxState.value = false;
+            if (inputRef.value?.value) inputRef.value.value = '';
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>
