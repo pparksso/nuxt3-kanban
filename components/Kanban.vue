@@ -109,58 +109,5 @@ const addSubTitleHandler = (e: KeyboardEvent) => {
             width: 10%;
         }
     }
-    &__main-box {
-        display: flex;
-        flex-wrap: wrap;
-        width: 100%;
-        &__item-list {
-            width: 25%;
-            padding: 0 15px;
-            margin-bottom: 30px;
-            &:not(&:last-child) {
-                border-right: 1px solid rgba(0, 0, 0, 0.1);
-            }
-            &__title {
-                margin-bottom: 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                span {
-                    font-size: 20px;
-                    user-select: none;
-                }
-            }
-            &__item {
-                display: flex;
-                border-radius: 5px;
-                background-color: #fff;
-                box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
-                cursor: pointer;
-                > span {
-                    flex-grow: 1;
-                    user-select: none;
-                }
-                .btns {
-                    display: flex;
-                    align-items: flex-start;
-                }
-            }
-            .plus {
-                margin-top: 10px;
-                button {
-                    width: 100%;
-                    border-radius: 5px;
-                    background-color: #5078e1;
-                    padding: 7px 15px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    span {
-                        color: #fff;
-                    }
-                }
-            }
-        }
-    }
 }
 </style>

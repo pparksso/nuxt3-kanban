@@ -38,6 +38,7 @@ export const useKanbanStore = defineStore('word', () => {
     const kanbanTitles = ref<string[] | null>();
     // 해당 칸반리스트
     const kanbanDatas = ref<KanbanDatas | null>();
+
     function getTitle() {
         const encodedEmail = encodeURIComponent(
             !userInfo.value.email ? '' : userInfo.value.email.replace(/\./g, '%2E'),
