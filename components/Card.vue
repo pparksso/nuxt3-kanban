@@ -73,19 +73,24 @@ const showAddItemHandler = (e: MouseEvent) => {
         // 왜 안되는지 모르겠음.... ㅠㅠㅠ
         inputRef.value[targetIndex].focus();
     }
+
     // 열려있는 창을 눌렀을 때 닫히는 코드
     if (typeof showAddItemIdx.value === 'number') {
         if (targetIndex === showAddItemIdx.value) {
+            inputRef.value[showAddItemIdx.value].value = '';
             showAddItemIdx.value = undefined;
             return;
         }
+        inputRef.value[showAddItemIdx.value].value = '';
     }
+
     showAddItemIdx.value = targetIndex;
 };
 
 // 아이템 추가하는 함수
 const addItemHandler = (e: MouseEvent) => {
     const index = showAddItemIdx.value;
+    console.log(index);
 };
 </script>
 <style lang="scss" scoped>
