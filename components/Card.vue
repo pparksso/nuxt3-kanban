@@ -18,9 +18,22 @@
                     class="kanban__main-box__item-list-wrap"
                 >
                     <div class="kanban__main-box__item-list__item">
-                        <span>{{ i }}</span>
+                        <input
+                            ref="itemInputRef"
+                            type="text"
+                            :value="i"
+                            readonly
+                            placeholder="추가 'Enter' 취소 'Esc'"
+                            :data-itemidx="idx"
+                            :data-cardidx="index1"
+                            @keydown="editItemHandler"
+                        />
                         <div class="btns">
-                            <button :data-cardidx="index1" :data-itemidx="idx">
+                            <button
+                                :data-cardidx="index1"
+                                :data-itemidx="idx"
+                                @click="editItemClickHandler"
+                            >
                                 <span
                                     :data-cardidx="index1"
                                     :data-itemidx="idx"
@@ -52,6 +65,7 @@
                     type="text"
                     :data-index="index1"
                     maxlength="30"
+                    placeholder="추가 'Enter' 취소 'Esc'"
                     @keydown="pressKeyAddItem"
                 />
                 <button @click="addItemHandler">
@@ -68,7 +82,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref as rtdbRef, getDatabase, update, set } from 'firebase/database';
+import { ref as rtdbRef, getDatabase, update, set, remove } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
@@ -77,7 +91,7 @@ const db = getDatabase();
 
 const showAddItemIdx = ref<number | undefined>();
 const inputRef = ref<[HTMLInputElement] | null>(null);
-
+const itemInputRef = ref<[HTMLInputElement] | null>(null);
 const inputs = computed(() => inputRef.value?.map((input: HTMLInputElement) => input.value) ?? []);
 
 // 카드 삭제
@@ -178,6 +192,39 @@ const removeItemHandler = (e: MouseEvent) => {
         });
     }
 };
+
+// 아이템 수정 버튼 클릭했을 때, 인풋창 변화 함수
+const editItemClickHandler = (e: MouseEvent) => {
+    const itemIdx = e.target?.dataset.itemidx;
+    itemInputRef.value[itemIdx].removeAttribute('readonly');
+    itemInputRef.value[itemIdx].focus();
+};
+
+// 아이템 수정, 수정 취소 함수
+const editItemHandler = (e: KeyboardEvent) => {
+    if (e.code === 'Enter') {
+        const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+        const word = kanbanStore.cardNames[e.target?.dataset.cardidx];
+        const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+        const idx = e.target.dataset.itemidx;
+        const val = e.target.value;
+        const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
+        items[idx] = val;
+        update(rtdbRef(db, path), {
+            items,
+        }).then(() => {
+            e.target.setAttribute('readonly', true);
+            kanbanStore.getTitle();
+        });
+    }
+    if (e.code === 'Escape') {
+        const word = kanbanStore.cardNames[e.target?.dataset.cardidx];
+        const idx = e.target.dataset.itemidx;
+        const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
+        e.target.value = items[idx];
+        e.target.setAttribute('readonly', true);
+    }
+};
 </script>
 <style lang="scss" scoped>
 .kanban__main-box {
@@ -210,9 +257,11 @@ const removeItemHandler = (e: MouseEvent) => {
             background-color: #fff;
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            > span {
+            > input {
                 flex-grow: 1;
-                user-select: none;
+                &::placeholder {
+                    color: #bbb;
+                }
             }
             .btns {
                 display: flex;
@@ -231,6 +280,9 @@ const removeItemHandler = (e: MouseEvent) => {
                 width: 100%;
                 height: 60px;
                 padding: 10px;
+                &::placeholder {
+                    color: #bbb;
+                }
             }
             button {
                 text-align: center;
