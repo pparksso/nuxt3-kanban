@@ -16,6 +16,7 @@
                     v-for="(i, idx) in card.items"
                     :key="idx"
                     class="kanban__main-box__item-list-wrap"
+                    draggable="true"
                 >
                     <div class="kanban__main-box__item-list__item">
                         <input
@@ -231,66 +232,82 @@ const editItemHandler = (e: KeyboardEvent) => {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
+
     &__item-list {
         width: 25%;
         padding: 0 15px;
         margin-bottom: 30px;
+
         &:not(&:last-child) {
             border-right: 1px solid rgba(0, 0, 0, 0.1);
         }
+
         &__title {
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             span {
                 font-size: 20px;
                 user-select: none;
             }
         }
+
         &-wrap {
             margin-bottom: 15px;
         }
+
         &__item {
             display: flex;
             border-radius: 5px;
             background-color: #fff;
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+
             > input {
                 flex-grow: 1;
+
                 &::placeholder {
                     color: #bbb;
                 }
             }
+
             .btns {
                 display: flex;
                 align-items: flex-start;
             }
         }
+
         .add-item {
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
             background-color: #fff;
             display: none;
+
             &.active {
                 display: block;
             }
+
             input {
                 width: 100%;
                 height: 60px;
                 padding: 10px;
+
                 &::placeholder {
                     color: #bbb;
                 }
             }
+
             button {
                 text-align: center;
                 width: 100%;
             }
         }
+
         .plus {
             margin-top: 10px;
+
             button {
                 width: 100%;
                 border-radius: 5px;
@@ -299,6 +316,7 @@ const editItemHandler = (e: KeyboardEvent) => {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+
                 span {
                     color: #fff;
                 }
