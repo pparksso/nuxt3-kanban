@@ -17,8 +17,13 @@
             </div>
             <div class="side-bar__list-box">
                 <ul>
-                    <li v-for="(title, index) of kanbanStore.kanbanTitles" :key="index">
-                        <span>{{ title }}</span>
+                    <li
+                        v-for="(title, index) of kanbanStore.kanbanTitles"
+                        :key="index"
+                        :data-title="title"
+                        @click="moveKanbanHandler"
+                    >
+                        <span :data-title="title">{{ title }}</span>
                         <button @click="removeListHandler(title)">
                             <span class="material-icons">close</span>
                         </button>
@@ -32,12 +37,13 @@
     </div>
 </template>
 <script setup lang="ts">
-import { getDatabase, set, ref as rtdbRef, remove } from 'firebase/database';
+import { getDatabase, set, ref as rtdbRef, remove, get, child } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
 
 const db = getDatabase();
+const dbRef = rtdbRef(db);
 
 const showInputBox = ref(false);
 const listInputRef = ref<HTMLInputElement | null>(null);
@@ -92,6 +98,16 @@ const removeListHandler = (title: string) => {
             kanbanStore.getTitle();
         });
     }
+};
+
+// 칸반보드 활성화
+const moveKanbanHandler = (e: MouseEvent) => {
+    const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+    const path = `${encodedEmail}/`;
+    get(child(dbRef, path)).then((snapshot) => {
+        const res = snapshot.val();
+        kanbanStore.kanbanDatas = res[e.target.dataset.title];
+    });
 };
 </script>
 <style lang="scss" scoped>
