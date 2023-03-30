@@ -50,10 +50,11 @@ export const useKanbanStore = defineStore('word', () => {
             loading.value = false;
             const titleData = snapshot.val();
             if (titleData) {
+                // 큰 칸반리스트의 타이틀들
                 const titleArr = Object.keys(titleData);
                 kanbanTitles.value = titleArr;
-                kanbanDatas.value = titleData[saveWord.value];
-                if (!saveWord.value) kanbanDatas.value = titleData[titleArr[0]];
+                if (saveWord.value) kanbanDatas.value = titleData[saveWord.value];
+                else kanbanDatas.value = titleData[titleArr[0]];
             } else {
                 kanbanTitles.value = null;
                 kanbanDatas.value = null;

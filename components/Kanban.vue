@@ -16,7 +16,7 @@
                     />
                 </div>
             </div>
-            <Card v-if="kanbanListState" />
+            <Card />
         </div>
     </div>
 </template>
@@ -25,25 +25,10 @@ import { getDatabase, ref as rtdbRef, set } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
-const kanbanListState = ref();
 const inputBoxState = ref<boolean>(false);
 const inputRef = ref<HTMLInputElement | null>(null);
 
 const db = getDatabase();
-
-// 칸반 아이템들이 있는지 없는지 확인하는 함수
-function kanbanListStateHandler() {
-    if (kanbanStore.kanbanDatas) {
-        if (kanbanStore.kanbanDatas.cards) {
-            kanbanListState.value = true;
-        } else {
-            kanbanListState.value = false;
-        }
-    } else {
-        kanbanListState.value = false;
-    }
-}
-kanbanListStateHandler();
 
 // 인풋박스 on/off
 const showInputBox = () => {
@@ -67,12 +52,24 @@ const addSubTitleHandler = (e: KeyboardEvent) => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         if (e.code === 'Enter') {
             const word = inputRef.value?.value as string;
+            // 사용 못하는 문자들 걸러내기
+            const prohibitedChars = /[.\\#$\\[\]]/;
+            if (prohibitedChars.test(word)) {
+                // eslint-disable-next-line no-alert
+                alert('마침표, 특수문자, 대괄호를 사용할 수 없습니다.');
+                return;
+            }
             const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
             set(rtdbRef(db, path), {
                 title: word,
-            }).then(() => {
-                hideAddInputBoxHandler();
-            });
+            })
+                .then(() => {
+                    hideAddInputBoxHandler();
+                })
+                .catch((_err) => {
+                    // eslint-disable-next-line no-alert
+                    alert('특수문자를 사용할 수 없습니다.');
+                });
         }
         if (e.code === 'Escape') {
             inputBoxState.value = false;
