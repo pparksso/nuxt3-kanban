@@ -12,7 +12,11 @@
                 </button>
             </div>
             <ul v-if="card.items">
-                <li v-for="(i, idx) in card.items" :key="idx">
+                <li
+                    v-for="(i, idx) in card.items"
+                    :key="idx"
+                    class="kanban__main-box__item-list-wrap"
+                >
                     <div class="kanban__main-box__item-list__item">
                         <span>{{ i }}</span>
                         <div class="btns">
@@ -38,7 +42,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { remove, ref as rtdbRef, getDatabase } from 'firebase/database';
+import { remove, ref as rtdbRef, getDatabase, update, set } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
@@ -46,7 +50,7 @@ const kanbanStore = useKanbanStore();
 const db = getDatabase();
 
 const showAddItemIdx = ref<number | undefined>();
-const inputRef = ref<HTMLInputElement | null>(null);
+const inputRef = ref<[HTMLInputElement] | null>(null);
 
 const inputs = computed(() => inputRef.value?.map((input: HTMLInputElement) => input.value) ?? []);
 
@@ -69,13 +73,17 @@ const showAddItemHandler = (e: MouseEvent) => {
     const targetIndex = Number(target.dataset.index);
 
     // 열린 인풋창 포커스 시키는 함수
-    if (typeof targetIndex === 'number' && typeof inputRef.value === 'object') {
+    if (
+        typeof targetIndex === 'number' &&
+        typeof inputRef.value === 'object' &&
+        inputRef.value !== null
+    ) {
         // 왜 안되는지 모르겠음.... ㅠㅠㅠ
         inputRef.value[targetIndex].focus();
     }
 
     // 열려있는 창을 눌렀을 때 닫히는 코드
-    if (typeof showAddItemIdx.value === 'number') {
+    if (typeof showAddItemIdx.value === 'number' && inputRef.value !== null) {
         if (targetIndex === showAddItemIdx.value) {
             inputRef.value[showAddItemIdx.value].value = '';
             showAddItemIdx.value = undefined;
@@ -88,9 +96,35 @@ const showAddItemHandler = (e: MouseEvent) => {
 };
 
 // 아이템 추가하는 함수
-const addItemHandler = (e: MouseEvent) => {
-    const index = showAddItemIdx.value;
-    console.log(index);
+const addItemHandler = () => {
+    if (typeof kanbanStore.userInfo.email === 'string') {
+        const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+        if (typeof showAddItemIdx.value === 'number') {
+            const text = inputRef.value[showAddItemIdx.value].value;
+            const word = kanbanStore.cardNames[showAddItemIdx.value];
+            const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+            if (kanbanStore.kanbanDatas?.cards[word]?.items) {
+                const items = Object.values(kanbanStore.kanbanDatas.cards[word].items);
+                items.push(text);
+                set(rtdbRef(db, path), {
+                    title: word,
+                    items,
+                }).then(() => {
+                    inputRef.value[showAddItemIdx.value].value = '';
+                    showAddItemIdx.value = undefined;
+                    kanbanStore.getTitle();
+                });
+            } else {
+                update(rtdbRef(db, path), {
+                    items: [text],
+                }).then(() => {
+                    inputRef.value[showAddItemIdx.value].value = '';
+                    showAddItemIdx.value = undefined;
+                    kanbanStore.getTitle();
+                });
+            }
+        }
+    }
 };
 </script>
 <style lang="scss" scoped>
@@ -114,6 +148,9 @@ const addItemHandler = (e: MouseEvent) => {
                 font-size: 20px;
                 user-select: none;
             }
+        }
+        &-wrap {
+            margin-bottom: 15px;
         }
         &__item {
             display: flex;

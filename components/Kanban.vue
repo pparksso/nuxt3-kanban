@@ -52,13 +52,7 @@ const addSubTitleHandler = (e: KeyboardEvent) => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         if (e.code === 'Enter') {
             const word = inputRef.value?.value as string;
-            // 사용 못하는 문자들 걸러내기
-            const prohibitedChars = /[.\\#$\\[\]]/;
-            if (prohibitedChars.test(word)) {
-                // eslint-disable-next-line no-alert
-                alert('마침표, 특수문자, 대괄호를 사용할 수 없습니다.');
-                return;
-            }
+            useReg().checkChar(word);
             const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
             set(rtdbRef(db, path), {
                 title: word,
