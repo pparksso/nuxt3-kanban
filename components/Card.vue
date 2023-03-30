@@ -20,14 +20,40 @@
                     <div class="kanban__main-box__item-list__item">
                         <span>{{ i }}</span>
                         <div class="btns">
-                            <button><span class="material-icons"> edit </span></button>
-                            <button><span class="material-icons"> close </span></button>
+                            <button :data-cardidx="index1" :data-itemidx="idx">
+                                <span
+                                    :data-cardidx="index1"
+                                    :data-itemidx="idx"
+                                    class="material-icons"
+                                >
+                                    edit
+                                </span>
+                            </button>
+                            <button
+                                :data-cardidx="index1"
+                                :data-itemidx="idx"
+                                @click="removeItemHandler"
+                            >
+                                <span
+                                    :data-cardidx="index1"
+                                    :data-itemidx="idx"
+                                    class="material-icons"
+                                >
+                                    close
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </li>
             </ul>
             <div :class="{ active: index1 === showAddItemIdx }" class="add-item">
-                <input ref="inputRef" type="text" :data-index="index1" maxlength="30" />
+                <input
+                    ref="inputRef"
+                    type="text"
+                    :data-index="index1"
+                    maxlength="30"
+                    @keydown="pressKeyAddItem"
+                />
                 <button @click="addItemHandler">
                     <span class="material-icons"> add </span>
                 </button>
@@ -42,7 +68,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { remove, ref as rtdbRef, getDatabase, update, set } from 'firebase/database';
+import { ref as rtdbRef, getDatabase, update, set } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
@@ -124,6 +150,32 @@ const addItemHandler = () => {
                 });
             }
         }
+    }
+};
+
+// 키보드이벤트 + 아이템 추가 함수
+const pressKeyAddItem = (e: KeyboardEvent) => {
+    if (e.code === 'Enter') addItemHandler();
+    if (e.code === 'Escape') {
+        inputRef.value[showAddItemIdx.value].value = '';
+        showAddItemIdx.value = undefined;
+    }
+};
+
+// 아이템 삭제
+const removeItemHandler = (e: MouseEvent) => {
+    if (typeof kanbanStore.userInfo.email === 'string') {
+        const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
+        const idx = e.target?.dataset.itemidx;
+        const word = kanbanStore.cardNames[e.target?.dataset.cardidx];
+        const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+        const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
+        items.splice(idx, 1);
+        update(rtdbRef(db, path), {
+            items,
+        }).then(() => {
+            kanbanStore.getTitle();
+        });
     }
 };
 </script>
