@@ -209,6 +209,7 @@ const editItemClickHandler = (e: MouseEvent) => {
     const target = e.target as HTMLDivElement;
     const itemIdx = target.dataset.itemidx;
     console.log(itemInputRef.value);
+    // 오류나는 중... 여기 해결해야됨!!!
     itemInputRef.value[itemIdx].removeAttribute('readonly');
     itemInputRef.value[itemIdx].focus();
 };
