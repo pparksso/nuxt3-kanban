@@ -12,11 +12,14 @@
                 </button>
             </div>
             <ul v-if="card.items">
+                <div class="kanban__main-box__item-list__dropzone"></div>
                 <li
                     v-for="(i, idx) in card.items"
                     :key="idx"
                     class="kanban__main-box__item-list-wrap"
                     draggable="true"
+                    @dragstart="dragStartHandler"
+                    @dragend="dragEndHandler"
                 >
                     <div class="kanban__main-box__item-list__item">
                         <input
@@ -58,7 +61,11 @@
                             </button>
                         </div>
                     </div>
+                    <div class="kanban__main-box__item-list__dropzone"></div>
                 </li>
+            </ul>
+            <ul v-else>
+                <div class="kanban__main-box__item-list__dropzone"></div>
             </ul>
             <div :class="{ active: index1 === showAddItemIdx }" class="add-item">
                 <input
@@ -87,14 +94,11 @@ import { ref as rtdbRef, getDatabase, update, set, remove } from 'firebase/datab
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
-
 const db = getDatabase();
-
 const showAddItemIdx = ref<number | undefined>();
 const inputRef = ref<[HTMLInputElement] | null>(null);
 const itemInputRef = ref<[HTMLInputElement] | null>(null);
 const inputs = computed(() => inputRef.value?.map((input: HTMLInputElement) => input.value) ?? []);
-
 // 카드 삭제
 const removeCardHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -107,12 +111,10 @@ const removeCardHandler = (e: MouseEvent) => {
         });
     }
 };
-
 // 아이템 추가 칸 show/hide
 const showAddItemHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const targetIndex = Number(target.dataset.index);
-
     // 열린 인풋창 포커스 시키는 함수
     if (
         typeof targetIndex === 'number' &&
@@ -122,7 +124,6 @@ const showAddItemHandler = (e: MouseEvent) => {
         // 왜 안되는지 모르겠음.... ㅠㅠㅠ
         inputRef.value[targetIndex].focus();
     }
-
     // 열려있는 창을 눌렀을 때 닫히는 코드
     if (typeof showAddItemIdx.value === 'number' && inputRef.value !== null) {
         if (targetIndex === showAddItemIdx.value) {
@@ -132,10 +133,8 @@ const showAddItemHandler = (e: MouseEvent) => {
         }
         inputRef.value[showAddItemIdx.value].value = '';
     }
-
     showAddItemIdx.value = targetIndex;
 };
-
 // 아이템 추가하는 함수
 const addItemHandler = () => {
     if (typeof kanbanStore.userInfo.email === 'string') {
@@ -167,7 +166,6 @@ const addItemHandler = () => {
         }
     }
 };
-
 // 키보드이벤트 + 아이템 추가 함수
 const pressKeyAddItem = (e: KeyboardEvent) => {
     if (e.code === 'Enter') addItemHandler();
@@ -176,7 +174,6 @@ const pressKeyAddItem = (e: KeyboardEvent) => {
         showAddItemIdx.value = undefined;
     }
 };
-
 // 아이템 삭제
 const removeItemHandler = (e: MouseEvent) => {
     if (typeof kanbanStore.userInfo.email === 'string') {
@@ -193,14 +190,12 @@ const removeItemHandler = (e: MouseEvent) => {
         });
     }
 };
-
 // 아이템 수정 버튼 클릭했을 때, 인풋창 변화 함수
 const editItemClickHandler = (e: MouseEvent) => {
     const itemIdx = e.target?.dataset.itemidx;
     itemInputRef.value[itemIdx].removeAttribute('readonly');
     itemInputRef.value[itemIdx].focus();
 };
-
 // 아이템 수정, 수정 취소 함수
 const editItemHandler = (e: KeyboardEvent) => {
     if (e.code === 'Enter') {
@@ -226,88 +221,79 @@ const editItemHandler = (e: KeyboardEvent) => {
         e.target.setAttribute('readonly', true);
     }
 };
+
+// 드래그 시작 이벤트
+const dragStartHandler = (e: MouseEvent) => {
+    e.target.classList.add('dragging');
+};
+const dragEndHandler = (e: MouseEvent) => {
+    console.log(e.target);
+};
 </script>
 <style lang="scss" scoped>
 .kanban__main-box {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-
     &__item-list {
         width: 25%;
         padding: 0 15px;
         margin-bottom: 30px;
-
         &:not(&:last-child) {
             border-right: 1px solid rgba(0, 0, 0, 0.1);
         }
-
         &__title {
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-
             span {
                 font-size: 20px;
                 user-select: none;
             }
         }
-
-        &-wrap {
-            margin-bottom: 15px;
+        &__dropzone {
+            height: 10px;
         }
-
         &__item {
             display: flex;
             border-radius: 5px;
             background-color: #fff;
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-
             > input {
                 flex-grow: 1;
-
                 &::placeholder {
                     color: #bbb;
                 }
             }
-
             .btns {
                 display: flex;
                 align-items: flex-start;
             }
         }
-
         .add-item {
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
             background-color: #fff;
             display: none;
-
             &.active {
                 display: block;
             }
-
             input {
                 width: 100%;
                 height: 60px;
                 padding: 10px;
-
                 &::placeholder {
                     color: #bbb;
                 }
             }
-
             button {
                 text-align: center;
                 width: 100%;
             }
         }
-
         .plus {
-            margin-top: 10px;
-
             button {
                 width: 100%;
                 border-radius: 5px;
@@ -316,7 +302,6 @@ const editItemHandler = (e: KeyboardEvent) => {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-
                 span {
                     color: #fff;
                 }
