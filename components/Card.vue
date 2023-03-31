@@ -12,13 +12,17 @@
                 </button>
             </div>
             <ul v-if="card.items">
-                <div class="kanban__main-box__item-list__dropzone"></div>
+                <div
+                    class="kanban__main-box__item-list__dropzone"
+                    @dragover="dragoverHandler"
+                    @drop="dropHandler"
+                    @dragleave="dragEndHandler"
+                ></div>
                 <li
                     v-for="(i, idx) in card.items"
                     :key="idx"
                     class="kanban__main-box__item-list-wrap"
                     draggable="true"
-                    @dragstart="dragStartHandler"
                     @dragend="dragEndHandler"
                 >
                     <div class="kanban__main-box__item-list__item">
@@ -61,11 +65,21 @@
                             </button>
                         </div>
                     </div>
-                    <div class="kanban__main-box__item-list__dropzone"></div>
+                    <div
+                        class="kanban__main-box__item-list__dropzone"
+                        @dragover="dragoverHandler"
+                        @drop="dropHandler"
+                        @dragleave="dragEndHandler"
+                    ></div>
                 </li>
             </ul>
             <ul v-else>
-                <div class="kanban__main-box__item-list__dropzone"></div>
+                <div
+                    class="kanban__main-box__item-list__dropzone"
+                    @dragover="dragoverHandler"
+                    @drop="dropHandler"
+                    @dragleave="dragEndHandler"
+                ></div>
             </ul>
             <div :class="{ active: index1 === showAddItemIdx }" class="add-item">
                 <input
@@ -192,7 +206,9 @@ const removeItemHandler = (e: MouseEvent) => {
 };
 // 아이템 수정 버튼 클릭했을 때, 인풋창 변화 함수
 const editItemClickHandler = (e: MouseEvent) => {
-    const itemIdx = e.target?.dataset.itemidx;
+    const target = e.target as HTMLDivElement;
+    const itemIdx = target.dataset.itemidx;
+    console.log(itemInputRef.value);
     itemInputRef.value[itemIdx].removeAttribute('readonly');
     itemInputRef.value[itemIdx].focus();
 };
@@ -222,12 +238,25 @@ const editItemHandler = (e: KeyboardEvent) => {
     }
 };
 
-// 드래그 시작 이벤트
-const dragStartHandler = (e: MouseEvent) => {
-    e.target.classList.add('dragging');
+// dropzone 위에 아이템이 왔을 때 사용할 함수(dragover)
+const dragoverHandler = (e: DragEvent) => {
+    e.preventDefault();
+    const target = e.target as HTMLDivElement;
+    target.classList.add('active');
 };
+
+// 아이템이 dropzone을 떠났을 때 (dragleave)
 const dragEndHandler = (e: MouseEvent) => {
-    console.log(e.target);
+    e.preventDefault();
+    const target = e.target as HTMLDivElement;
+    target.classList.remove('active');
+};
+
+// 아이템이 dropzone에 drop했을 때(drop)
+const dropHandler = (e: DragEvent) => {
+    e.preventDefault();
+    const target = e.target as HTMLDivElement;
+    target.classList.remove('active');
 };
 </script>
 <style lang="scss" scoped>
@@ -257,7 +286,7 @@ const dragEndHandler = (e: MouseEvent) => {
             transition: background 0.15s, height 0.15s;
             &.active {
                 height: 15px;
-                background: rgba(95, 177, 57, 0.25);
+                background: rgba(238, 92, 92, 0.63);
             }
         }
         &__item {
