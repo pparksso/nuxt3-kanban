@@ -254,6 +254,11 @@ const dragEndHandler = (e: MouseEvent) => {
         }
         &__dropzone {
             height: 10px;
+            transition: background 0.15s, height 0.15s;
+            &.active {
+                height: 15px;
+                background: rgba(95, 177, 57, 0.25);
+            }
         }
         &__item {
             display: flex;
