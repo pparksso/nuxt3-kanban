@@ -43,6 +43,7 @@
                                 @click="editItemClickHandler"
                             >
                                 <span
+                                    ref="editBtnRefs"
                                     :data-cardidx="index1"
                                     :data-itemidx="idx"
                                     class="material-icons"
@@ -106,13 +107,20 @@
 <script setup lang="ts">
 import { ref as rtdbRef, getDatabase, update, set, remove } from 'firebase/database';
 import { useKanbanStore } from '@/stores/kanban';
+import { off } from 'process';
 
 const kanbanStore = useKanbanStore();
 const db = getDatabase();
 const showAddItemIdx = ref<number | undefined>();
+
 const inputRef = ref<[HTMLInputElement] | null>(null);
-const itemInputRef = ref<[HTMLInputElement] | null>(null);
 const inputs = computed(() => inputRef.value?.map((input: HTMLInputElement) => input.value) ?? []);
+
+// 아이템 인풋 ref
+const itemInputRef = ref<[HTMLInputElement] | null>(null);
+// 수정버튼 ref
+const editBtnRefs = ref<[HTMLDivElement] | null>(null);
+
 // 카드 삭제
 const removeCardHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -204,15 +212,21 @@ const removeItemHandler = (e: MouseEvent) => {
         });
     }
 };
+
 // 아이템 수정 버튼 클릭했을 때, 인풋창 변화 함수
 const editItemClickHandler = (e: MouseEvent) => {
-    const target = e.target as HTMLDivElement;
-    const itemIdx = target.dataset.itemidx;
-    console.log(itemInputRef.value);
-    // 오류나는 중... 여기 해결해야됨!!!
-    itemInputRef.value[itemIdx].removeAttribute('readonly');
-    itemInputRef.value[itemIdx].focus();
+    const { target } = e;
+    let index: number;
+    editBtnRefs.value?.forEach((i, idx) => {
+        if (target === i) index = idx;
+    });
+    itemInputRef.value?.forEach((i, idx) => {
+        if (index === idx) i.removeAttribute('readonly');
+        else i.setAttribute('readonly', true);
+    });
+    itemInputRef.value[index].focus();
 };
+
 // 아이템 수정, 수정 취소 함수
 const editItemHandler = (e: KeyboardEvent) => {
     if (e.code === 'Enter') {
@@ -287,7 +301,7 @@ const dropHandler = (e: DragEvent) => {
             transition: background 0.15s, height 0.15s;
             &.active {
                 height: 15px;
-                background: rgba(238, 92, 92, 0.63);
+                background: rgba(0, 0, 0, 0.1);
             }
         }
         &__item {
