@@ -49,6 +49,7 @@ const showAddItemIdx = ref<number | undefined>();
 const inputRef = ref<HTMLInputElement | null>(null);
 
 const inputs = computed(() => inputRef.value?.map((input: HTMLInputElement) => input.value) ?? []);
+const inputDoms = computed(() => inputRef.value?.map((input: HTMLInputElement) => input) ?? []);
 
 // 카드 삭제
 const removeCardHandler = (e: MouseEvent) => {
@@ -71,6 +72,7 @@ const showAddItemHandler = (e: MouseEvent) => {
     // 열린 인풋창 포커스 시키는 함수
     if (typeof targetIndex === 'number' && typeof inputRef.value === 'object') {
         // 왜 안되는지 모르겠음.... ㅠㅠㅠ
+        console.log(inputRef.value[targetIndex]);
         inputRef.value[targetIndex].focus();
     }
     // 열려있는 창을 눌렀을 때 닫히는 코드
