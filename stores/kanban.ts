@@ -5,13 +5,10 @@ type UserInfo = {
     name: string | null;
     email: string | null;
 };
-type Card = {
-    title: string;
-    items: string[];
-};
+
 type KanbanDatas = {
     title: string | null;
-    cards: Card | null;
+    cards: object | null;
 };
 export const useKanbanStore = defineStore('word', () => {
     const db = getDatabase();
@@ -39,6 +36,9 @@ export const useKanbanStore = defineStore('word', () => {
     // 해당 칸반리스트
     const kanbanDatas = ref<KanbanDatas | null>();
 
+    // 칸반보드 안의 카드들의 이름을 모은 배열
+    const cardNames = ref<string[] | null>();
+
     function getTitle() {
         const encodedEmail = encodeURIComponent(
             !userInfo.value.email ? '' : userInfo.value.email.replace(/\./g, '%2E'),
@@ -50,10 +50,16 @@ export const useKanbanStore = defineStore('word', () => {
             loading.value = false;
             const titleData = snapshot.val();
             if (titleData) {
+                // 큰 칸반리스트의 타이틀들
                 const titleArr = Object.keys(titleData);
                 kanbanTitles.value = titleArr;
-                kanbanDatas.value = titleData[saveWord.value];
-                if (!saveWord.value) kanbanDatas.value = titleData[titleArr[0]];
+                if (saveWord.value) {
+                    kanbanDatas.value = titleData[saveWord.value];
+                    cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
+                } else {
+                    kanbanDatas.value = titleData[titleArr[0]];
+                    cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
+                }
             } else {
                 kanbanTitles.value = null;
                 kanbanDatas.value = null;
@@ -61,5 +67,6 @@ export const useKanbanStore = defineStore('word', () => {
             }
         });
     }
-    return { loading, userInfo, changeWord, kanbanTitles, kanbanDatas, getTitle };
+
+    return { loading, userInfo, changeWord, kanbanTitles, kanbanDatas, getTitle, cardNames };
 });
