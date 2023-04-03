@@ -141,6 +141,7 @@ const removeCardHandler = (e: MouseEvent) => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${targetWord}/`;
         remove(rtdbRef(db, path)).then(() => {
+            kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas?.title);
             kanbanStore.getTitle();
         });
     }
@@ -175,7 +176,8 @@ const addItemHandler = () => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         if (typeof showAddItemIdx.value === 'number') {
             const text = inputRef.value[showAddItemIdx.value].value;
-            const word = kanbanStore.cardNames[showAddItemIdx.value];
+            const wordArr = Object.keys(kanbanStore.kanbanDatas?.cards);
+            const word = wordArr[showAddItemIdx.value];
             const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
             if (kanbanStore.kanbanDatas?.cards[word]?.items) {
                 const items = Object.values(kanbanStore.kanbanDatas.cards[word].items);
@@ -186,6 +188,7 @@ const addItemHandler = () => {
                 }).then(() => {
                     inputRef.value[showAddItemIdx.value].value = '';
                     showAddItemIdx.value = undefined;
+                    kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas?.title);
                     kanbanStore.getTitle();
                 });
             } else {
@@ -194,6 +197,7 @@ const addItemHandler = () => {
                 }).then(() => {
                     inputRef.value[showAddItemIdx.value].value = '';
                     showAddItemIdx.value = undefined;
+                    kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas?.title);
                     kanbanStore.getTitle();
                 });
             }
@@ -213,7 +217,8 @@ const removeItemHandler = (e: MouseEvent) => {
     if (typeof kanbanStore.userInfo.email === 'string') {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         const idx = e.target?.dataset.itemidx;
-        const word = kanbanStore.cardNames[e.target?.dataset.cardidx];
+        const wordArr = Object.keys(kanbanStore.kanbanDatas?.cards);
+        const word = wordArr[e.target?.dataset.cardidx];
         const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
         const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
         items.splice(idx, 1);
@@ -243,18 +248,21 @@ const editItemClickHandler = (e: MouseEvent) => {
 const editItemHandler = (e: KeyboardEvent) => {
     if (e.code === 'Enter') {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
-        const word = kanbanStore.cardNames[e.target?.dataset.cardidx];
-        const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
-        const idx = e.target.dataset.itemidx;
-        const val = e.target.value;
-        const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
-        items[idx] = val;
-        update(rtdbRef(db, path), {
-            items,
-        }).then(() => {
-            e.target.setAttribute('readonly', true);
-            kanbanStore.getTitle();
-        });
+        const wordArr = Object.keys(kanbanStore.kanbanDatas?.cards);
+        const word = wordArr[e.target?.dataset.cardidx];
+        console.log(wordArr, e.target.dataset.cardidx);
+        // const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+        // const idx = e.target.dataset.itemidx;
+        // const val = e.target.value;
+        // const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
+        // items[idx] = val;
+        // update(rtdbRef(db, path), {
+        //     items,
+        // }).then(() => {
+        //     e.target.setAttribute('readonly', true);
+        //     kanbanStore.changeCategoryTitle(word);
+        //     kanbanStore.getTitle();
+        // });
     }
     if (e.code === 'Escape') {
         const word = kanbanStore.cardNames[e.target?.dataset.cardidx];

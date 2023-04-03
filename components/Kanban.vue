@@ -42,7 +42,6 @@ watchEffect(() => {
 
 // 카드 인풋박스 숨기기
 const hideAddInputBoxHandler = () => {
-    kanbanStore.getTitle();
     inputBoxState.value = false;
     if (inputRef.value?.value) inputRef.value.value = '';
 };
@@ -58,7 +57,11 @@ const addSubTitleHandler = (e: KeyboardEvent) => {
                 title: word,
             })
                 .then(() => {
+                    if (typeof kanbanStore.kanbanDatas?.title === 'string') {
+                        kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas.title);
+                    }
                     hideAddInputBoxHandler();
+                    kanbanStore.getTitle();
                 })
                 .catch((_err) => {
                     // eslint-disable-next-line no-alert

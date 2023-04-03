@@ -5,7 +5,7 @@
         </div>
         <div class="board-wrap">
             <SideBar />
-            <EmptyBorad v-if="!kanbanStore.kanbanTitles" />
+            <EmptyBorad v-if="!kanbanState" />
             <Kanban v-else />
         </div>
     </div>
@@ -15,6 +15,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
+const route = useRoute();
+const kanbanState = ref();
 
 const auth = getAuth();
 const authPromise = new Promise((resolve) => {
@@ -32,6 +34,10 @@ const authPromise = new Promise((resolve) => {
 authPromise.then((isAuthenticated) => {
     if (isAuthenticated) kanbanStore.getTitle();
 });
+
+if (!route.query.title) {
+    kanbanState.value = false;
+}
 </script>
 <style lang="scss" scoped>
 .board {
