@@ -32,12 +32,23 @@ const authPromise = new Promise((resolve) => {
 });
 
 authPromise.then((isAuthenticated) => {
-    if (isAuthenticated) kanbanStore.getTitle();
+    if (isAuthenticated) {
+        if (route.query.title) {
+            kanbanStore.changeCategoryTitle(route.query.title);
+        }
+    }
 });
 
-if (!route.query.title) {
-    kanbanState.value = false;
-}
+watchEffect(() => {
+    // // 쿼리 변경 마다 데이터 변경
+    kanbanStore.changeCategoryTitle(route.query.title);
+    kanbanStore.getTitle();
+    if (!route.query.title) {
+        kanbanState.value = false;
+    } else {
+        kanbanState.value = true;
+    }
+});
 </script>
 <style lang="scss" scoped>
 .board {

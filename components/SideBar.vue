@@ -20,10 +20,11 @@
                     <li
                         v-for="(title, index) of kanbanStore.kanbanTitles"
                         :key="index"
+                        ref="titlesRef"
                         :data-title="title"
                         @click="moveKanbanHandler"
                     >
-                        <span :data-title="title">{{ title }}</span>
+                        {{ title }}
                         <button @click="removeListHandler(title)">
                             <span class="material-icons">close</span>
                         </button>
@@ -41,12 +42,15 @@ import { getDatabase, set, ref as rtdbRef, remove, get, child } from 'firebase/d
 import { useKanbanStore } from '@/stores/kanban';
 
 const kanbanStore = useKanbanStore();
+const router = useRouter();
+const route = useRoute();
 
 const db = getDatabase();
 const dbRef = rtdbRef(db);
 
 const showInputBox = ref(false);
 const listInputRef = ref<HTMLInputElement | null>(null);
+const titlesRef = ref();
 
 const logoutHandler = () => {
     useAuth().signOut();
@@ -63,7 +67,6 @@ watchEffect(() => {
 });
 
 const hideInputBoxHandler = () => {
-    kanbanStore.getTitle();
     showInputBox.value = false;
     if (listInputRef.value?.value) listInputRef.value.value = '';
 };
@@ -80,6 +83,7 @@ const addListHandler = (e: KeyboardEvent) => {
                 title: word,
             }).then(() => {
                 hideInputBoxHandler();
+                router.push({ query: { title: word } });
             });
         }
         if (e.code === 'Escape') {
@@ -95,18 +99,17 @@ const removeListHandler = (title: string) => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         const path = `${encodedEmail}/`;
         remove(rtdbRef(db, path + title)).then(() => {
-            kanbanStore.getTitle();
+            router.push('/borad');
         });
     }
 };
 
 // 칸반보드 활성화
 const moveKanbanHandler = (e: MouseEvent) => {
-    const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
-    const path = `${encodedEmail}/`;
-    get(child(dbRef, path)).then((snapshot) => {
-        const res = snapshot.val();
-        kanbanStore.kanbanDatas = res[e.target.dataset.title];
+    router.push({ query: { title: e.target.dataset.title } });
+    titlesRef.value.forEach((i) => {
+        if (i === e.target) i.classList.add('active');
+        else i.classList.remove('active');
     });
 };
 </script>
@@ -160,9 +163,11 @@ const moveKanbanHandler = (e: MouseEvent) => {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                span {
-                    color: #aaa;
-                    font-weight: 400;
+                color: #aaa;
+                font-weight: 400;
+                &.active {
+                    color: #333;
+                    font-weight: 700;
                 }
             }
         }

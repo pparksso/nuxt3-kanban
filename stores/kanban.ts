@@ -13,6 +13,7 @@ type KanbanDatas = {
 export const useKanbanStore = defineStore('word', () => {
     const db = getDatabase();
     const dbRef = rtdbRef(db);
+    const route = useRoute();
 
     // 로딩 상태
     const loading = ref<boolean>(true);
@@ -61,14 +62,15 @@ export const useKanbanStore = defineStore('word', () => {
                 // 큰 칸반리스트의 타이틀들
                 const titleArr = Object.keys(titleData);
                 kanbanTitles.value = titleArr;
-                if (saveWord.value) {
-                    kanbanDatas.value = titleData[saveWord.value];
-                } else if (nowCategoryTitle.value !== '') {
+                if (nowCategoryTitle.value !== '' && nowCategoryTitle.value !== undefined) {
                     kanbanDatas.value = titleData[nowCategoryTitle.value];
+                    cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
+                } else if (saveWord.value) {
+                    kanbanDatas.value = titleData[saveWord.value];
+                    cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
                 } else {
                     kanbanDatas.value = titleData[titleArr[0]];
                 }
-                cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
             } else {
                 kanbanTitles.value = null;
                 kanbanDatas.value = null;

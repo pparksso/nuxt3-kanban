@@ -35,8 +35,8 @@ const showInputBox = () => {
     inputBoxState.value = !inputBoxState.value;
 };
 
-// 인풋박스 포커스
 watchEffect(() => {
+    // 인풋박스 포커스
     if (inputBoxState.value) inputRef.value?.focus();
 });
 
