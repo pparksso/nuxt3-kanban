@@ -32,14 +32,6 @@ export const useKanbanStore = defineStore('word', () => {
         nowCategoryTitle.value = title;
     }
 
-    // 추가한 칸반리스트 제목
-    const saveWord = ref<string>('');
-
-    // 리스트 제목 변경 함수
-    function changeWord(word: string) {
-        saveWord.value = word;
-    }
-
     // 칸반리스트 제목이 모인 배열
     const kanbanTitles = ref<string[] | null>();
     // 해당 칸반리스트
@@ -64,12 +56,9 @@ export const useKanbanStore = defineStore('word', () => {
                 kanbanTitles.value = titleArr;
                 if (nowCategoryTitle.value !== '' && nowCategoryTitle.value !== undefined) {
                     kanbanDatas.value = titleData[nowCategoryTitle.value];
-                    cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
-                } else if (saveWord.value) {
-                    kanbanDatas.value = titleData[saveWord.value];
-                    cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
-                } else {
-                    kanbanDatas.value = titleData[titleArr[0]];
+                    if (kanbanDatas.value.cards) {
+                        cardNames.value = Object.keys(kanbanDatas.value?.cards as object);
+                    }
                 }
             } else {
                 kanbanTitles.value = null;
@@ -82,7 +71,6 @@ export const useKanbanStore = defineStore('word', () => {
     return {
         loading,
         userInfo,
-        changeWord,
         kanbanTitles,
         kanbanDatas,
         getTitle,

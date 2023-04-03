@@ -150,6 +150,11 @@ const removeCardHandler = (e: MouseEvent) => {
 const showAddItemHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const targetIndex = Number(target.dataset.index);
+    // 첫 랜더링 때 아이템 추가칸의 배열이 거꾸로 담기는 문제 해결하는 함수
+    if (inputRef.value[0].dataset.index != 0) {
+        const newInputArr = inputRef.value?.reverse();
+        inputRef.value = newInputArr;
+    }
     // 열린 인풋창 포커스 시키는 함수
     if (
         typeof targetIndex === 'number' &&
@@ -171,14 +176,19 @@ const showAddItemHandler = (e: MouseEvent) => {
     showAddItemIdx.value = targetIndex;
 };
 // 아이템 추가하는 함수
-const addItemHandler = () => {
+// eslint-disable-next-line consistent-return
+const addItemHandler = (val: string, dom: HTMLInputElement) => {
     if (typeof kanbanStore.userInfo.email === 'string') {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         if (typeof showAddItemIdx.value === 'number') {
-            const text = inputRef.value[showAddItemIdx.value].value;
+            const text = val;
             const wordArr = Object.keys(kanbanStore.kanbanDatas?.cards);
             const word = wordArr[showAddItemIdx.value];
             const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+            if (text === '') {
+                alert('빈칸은 저장할 수 없습니다.');
+                return false;
+            }
             if (kanbanStore.kanbanDatas?.cards[word]?.items) {
                 const items = Object.values(kanbanStore.kanbanDatas.cards[word].items);
                 items.push(text);
@@ -186,7 +196,7 @@ const addItemHandler = () => {
                     title: word,
                     items,
                 }).then(() => {
-                    inputRef.value[showAddItemIdx.value].value = '';
+                    dom.value = '';
                     showAddItemIdx.value = undefined;
                     kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas?.title);
                     kanbanStore.getTitle();
@@ -195,7 +205,7 @@ const addItemHandler = () => {
                 update(rtdbRef(db, path), {
                     items: [text],
                 }).then(() => {
-                    inputRef.value[showAddItemIdx.value].value = '';
+                    dom.value = '';
                     showAddItemIdx.value = undefined;
                     kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas?.title);
                     kanbanStore.getTitle();
@@ -206,9 +216,9 @@ const addItemHandler = () => {
 };
 // 키보드이벤트 + 아이템 추가 함수
 const pressKeyAddItem = (e: KeyboardEvent) => {
-    if (e.code === 'Enter') addItemHandler();
+    if (e.code === 'Enter') addItemHandler(e.target.value, e.target);
     if (e.code === 'Escape') {
-        inputRef.value[showAddItemIdx.value].value = '';
+        e.target.value = '';
         showAddItemIdx.value = undefined;
     }
 };
@@ -250,19 +260,18 @@ const editItemHandler = (e: KeyboardEvent) => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         const wordArr = Object.keys(kanbanStore.kanbanDatas?.cards);
         const word = wordArr[e.target?.dataset.cardidx];
-        console.log(wordArr, e.target.dataset.cardidx);
-        // const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
-        // const idx = e.target.dataset.itemidx;
-        // const val = e.target.value;
-        // const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
-        // items[idx] = val;
-        // update(rtdbRef(db, path), {
-        //     items,
-        // }).then(() => {
-        //     e.target.setAttribute('readonly', true);
-        //     kanbanStore.changeCategoryTitle(word);
-        //     kanbanStore.getTitle();
-        // });
+        const path = `${encodedEmail}/${kanbanStore.kanbanDatas?.title}/cards/${word}/`;
+        const idx = e.target.dataset.itemidx;
+        const val = e.target.value;
+        const items = Object.values(kanbanStore.kanbanDatas?.cards[word].items);
+        items[idx] = val;
+        update(rtdbRef(db, path), {
+            items,
+        }).then(() => {
+            e.target.setAttribute('readonly', true);
+            kanbanStore.changeCategoryTitle(kanbanStore.kanbanDatas?.title);
+            kanbanStore.getTitle();
+        });
     }
     if (e.code === 'Escape') {
         const word = kanbanStore.cardNames[e.target?.dataset.cardidx];

@@ -78,7 +78,7 @@ const addListHandler = (e: KeyboardEvent) => {
         const path = `${encodedEmail}/`;
         if (e.code === 'Enter') {
             const word = listInputRef.value?.value as string;
-            kanbanStore.changeWord(word);
+            kanbanStore.changeCategoryTitle(word);
             set(rtdbRef(db, path + word), {
                 title: word,
             }).then(() => {
@@ -99,7 +99,8 @@ const removeListHandler = (title: string) => {
         const encodedEmail = encodeURIComponent(kanbanStore.userInfo.email.replace(/\./g, '%2E'));
         const path = `${encodedEmail}/`;
         remove(rtdbRef(db, path + title)).then(() => {
-            router.push('/borad');
+            kanbanStore.getTitle();
+            router.push('/board');
         });
     }
 };
